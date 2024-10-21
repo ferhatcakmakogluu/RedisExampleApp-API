@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using RedisExampleApp.Api.Model;
 using RedisExampleApp.Api.Repository;
+using RedisExampleApp.Caching;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +21,20 @@ builder.Services.AddDbContext<AppDbContext>(options=>
     options.UseInMemoryDatabase("database");
 });
 
+
+builder.Services.AddSingleton<RedisService>(sp =>
+{
+    return new RedisService(builder.Configuration["CacheOptions:Url"]);
+});
+
+/*
+ *  HER SERERSINDE db.GetDb(0); KULLANMAMAK ICIN YAPILABILIR
+    builder.Services.AddSingleton<IDatabase>(sp =>
+    {
+        var db = sp.GetRequiredService<RedisService>();
+        return db.GetDb(0);
+    });
+*/
 var app = builder.Build();
 
 //default seedleri alanilmek icin
